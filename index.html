@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Neighborhood Map Application</title>
     <link rel="stylesheet" type="text/css" href="CSS/style.css">
 </head>
@@ -9,8 +10,25 @@
     <div class="container">
         <div id="search-container">
             <div id="search-nav">
-                <input id="input" placeholder="Search here...">
-                <br>
+                <input id="input" placeholder="Search here..." type="text" data-bind="textInput: query, valueUpdate: 'keydown'" autocomplete="off">
+
+                <div id="scroller">
+                    <ul data-bind="template: { name: 'new-template', foreach: markers }"></ul>
+                    <script type="text/html" id="new-template">
+                        <h3 data-bind="text: name"></h3>
+                        <div data-bind="visible: listVisible">
+                            <a href="#" data-bind="attr: {id: id}">
+                                <li>
+                                    <strong data-bind="text: title"></strong>
+                                    <p data-bind="text: streetAddress"></p>
+                                    <p data-bind="text: cityAddress"></p>
+                                </li>
+                            </a>
+                            <hr>
+                        </div>
+                    </script>
+                </div>
+
             </div>
         </div>
 

@@ -25,8 +25,6 @@ function initMap() {
         {title: 'Telstra Tower', location: {lat: -35.275891, lng: 149.098601}}
     ];
 
-    var largeInfowindow = new google.maps.InfoWindow();
-
     // The following group uses the location array to create an array of markers on initialize.
     for (var i = 0; i < locations.length; i++) {
         // Get the position from the location array.
@@ -41,29 +39,10 @@ function initMap() {
         });
         // Push the marker to our array of markers.
         markers.push(marker);
-        // Create an onclick event to open an infowindow at each marker.
-        marker.addListener('click', function() {
-            populateInfoWindow(this, largeInfowindow);
-        });
+
+
     }
     showListings();
-
-}
-
-// This function populates the infowindow when the marker is clicked. We'll only allow
-// one infowindow which will open at the marker that is clicked, and populate based
-// on that markers position.
-function populateInfoWindow(marker, infowindow) {
-    // Check to make sure the infowindow is not already opened on this marker.
-    if (infowindow.marker != marker) {
-        infowindow.marker = marker;
-        infowindow.setContent('<div>' + marker.title + '</div>');
-        infowindow.open(map, marker);
-        // Make sure the marker property is cleared if the infowindow is closed.
-        infowindow.addListener('closeclick', function() {
-            infowindow.marker = null;
-        });
-    }
 }
 
 //This function will loop through the markers array and display them all.
@@ -76,10 +55,82 @@ function showListings() {
     }
     map.fitBounds(bounds);
 }
+
+function MyViewModel() {
+    this.query = ko.observable('');
+    this.markers = [{
+        title: 'National Museum of Australia',
+        lat: ' -35.293189',
+        lng: '149.121190',
+        id: 'list1',
+        streetAddress: 'Lawson Cres',
+        cityAddress: 'Acton ACT 2601, Australia',
+        listVisible: true,
+        mapVisible: true
+    },{
+        title: 'National Library of Australia',
+        lat: ' -35.296547',
+        lng: '149.129837',
+        id: 'list2',
+        streetAddress: 'Parkes Pl W',
+        cityAddress: 'Canberra ACT 2600, Australia',
+        listVisible: true,
+        mapVisible: true
+    },{
+        title: 'Australian War Memorial',
+        lat: ' -35.281106',
+        lng: '149.148334',
+        id: 'list3',
+        streetAddress: 'Treloar Cres',
+        cityAddress: 'Campbell ACT 2612, Australia',
+        listVisible: true,
+        mapVisible: true
+    },{
+        title: 'Parliament House',
+        lat: ' -35.307871',
+        lng: '149.124189',
+        id: 'list4',
+        streetAddress: 'Parliament Dr',
+        cityAddress: 'Canberra ACT 2600, Australia',
+        listVisible: true,
+        mapVisible: true
+    },{
+        title: 'The Australian National University',
+        lat: ' -35.277997',
+        lng: '149.118984',
+        id: 'list5',
+        streetAddress: 'Acton',
+        cityAddress: 'Acton ACT 2601, Australia',
+        listVisible: true,
+        mapVisible: true
+    },{
+        title: 'Telstra Tower',
+        lat: ' -35.275891',
+        lng: '149.098601',
+        id: 'list6',
+        streetAddress: '100 Black Mountain Dr',
+        cityAddress: 'Acton ACT 2601, Australia',
+        listVisible: true,
+        mapVisible: true
+    }];
+}
+
+// viewModel.markers = ko.dependentObservable(function() {
+//     var self = this;
+//     var search = self.query().toLowerCase();
+//     return ko.utils.arrayFilter(markers, function(marker) {
+//         if (marker.title.toLowerCase().indexOf(search) >= 0) {
+//             marker.mapVisible = true;
+//             return marker.listVisible(true);
+//         } else {
+//             marker.mapVisible = false;
+//             setAllMap();
+//             return marker.listVisible(false);
+//         }
+//     });
 //
-// // This function will loop through the listings and hide them all.
-// function hideListings() {
-//     for (var i = 0; i < markers.length; i++) {
-//         markers[i].setMap(null);
-//     }
-// }
+// },viewModel);
+
+ko.applyBindings(new MyViewModel());
+
+
