@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Neighborhood Map Application</title>
+    <link rel="stylesheet" type="text/css" href="CSS/style.css">
+</head>
+<body>
+    <div class="container">
+        <div id="search-container">
+            <div id="search-nav">
+                <input id="input" placeholder="Search here...">
+                <br>
+            </div>
+        </div>
+
+            <div id="map"></div>
+    </div>
+
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCN1T3lBNWs_oOtWME346hjdnds7XDrolc&v=3&callback=initMap">
+    </script>
+    <script src="Javascript/lib/knockout-3.4.1.js"></script>
+    <script src="Javascript/lib/jquery.min.js"></script>
+    <script src="Javascript/lib/bootstrap.min.js"></script>
+    <script src="Javascript/app.js"></script>
+
+
+</body>
+</html>
