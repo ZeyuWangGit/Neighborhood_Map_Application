@@ -10,8 +10,10 @@
     <div class="container">
         <div id="search-container">
             <div id="search-nav">
+                <div id="btn-class">Reset Map</div>
+                <div id="show">ShowList</div>
+                <div id="hide">HideList</div>
                 <input id="input" placeholder="Search here..." type="text" data-bind="textInput: query, valueUpdate: 'keydown'" autocomplete="off">
-
                 <div id="scroller">
                     <ul data-bind="template: { name: 'new-template', foreach: markers }"></ul>
                     <script type="text/html" id="new-template">
@@ -28,11 +30,11 @@
                         </div>
                     </script>
                 </div>
-
             </div>
         </div>
 
-            <div id="map"></div>
+
+        <div id="map"></div>
     </div>
 
     <script async defer

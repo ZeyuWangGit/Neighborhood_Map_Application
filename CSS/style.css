@@ -23,6 +23,7 @@ h1 {
 #map {
     bottom:0px;
     height: 100%;
+    width: 100%;
     left: 0px;
     position: absolute;
     right: 0px;
@@ -38,7 +39,7 @@ h1 {
 
 #search-nav {
     width: 270px;
-    max-height: 549px;
+    max-height: 600px;
     background-color: rgba(256,256,256,.9);
     border: solid 1px;
     border-color: #9D9D9D;
@@ -90,4 +91,37 @@ p {
 strong {
     font-size: 14px;
 }
-
+#btn-class{
+    display: inline;
+    border:1px solid #BFBFBF;
+    border-right-color: transparent;
+    color: #8C8C8C;
+    font-family: Verdana;
+    width: auto;
+    height: auto;
+    font-size: 17px;
+    padding: 0px 0px;
+    background-color: #FCFAF9;
+}
+#btn-class:hover, #btn-class:active{
+    border:1px solid #BFBFBF;
+    color: #8C8C8C;
+    background-color: #E8E8E8;
+}
+#show,#hide{
+    display: inline;
+    border:1px solid #BFBFBF;
+    border-right-color: transparent;
+    color: #8C8C8C;
+    font-family: Verdana;
+    width: auto;
+    height: auto;
+    font-size: 17px;
+    padding: 0px 0px;
+    background-color: #FCFAF9;
+}
+#show:hover, #show:active,#hide:hover, #hide:active{
+    border:1px solid #BFBFBF;
+    color: #8C8C8C;
+    background-color: #E8E8E8;
+}

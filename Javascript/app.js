@@ -15,6 +15,11 @@ function initMap() {
         mapTypeControl: false
     });
 
+    // Responsible: hide List View when width less than 850 and height is less than 595
+    if ($(window).width() < 850 || $(window).height() < 595) {
+        $("#scroller").hide();
+    }
+
     // Style the markers a bit. This will be our listing marker icon.
     var defaultIcon = makeMarkerIcon('0091ff');
 
@@ -38,11 +43,12 @@ function initMap() {
             id: i,
             streetAddress: ViewModel.markersSrc[i].streetAddress,
             cityAddress: ViewModel.markersSrc[i].cityAddress,
-            icon: defaultIcon,
+            icon: defaultIcon
         });
         // Push the marker to our array of markers.
         markers.push(marker);
 
+        //marker's response when click, mouseover and mouseout
         marker.addListener('click', function() {
             populateInfoWindow(this, largeInfowindow);
         });
@@ -52,7 +58,23 @@ function initMap() {
         marker.addListener('mouseout', function() {
             this.setIcon(defaultIcon);
         });
+
+        //Reset, show and hide button
+        $( "#btn-class" ).click(function() {
+            map.setZoom(14);
+            map.setCenter(new google.maps.LatLng(-35.282267, 149.128741));
+        });
+        $("#hide").click(function(){
+            $("#scroller").hide();
+        });
+        $("#show").click(function(){
+            $("#scroller").show();
+        });
+
+        //resize function when window resize and hide ListView
+        $(window).resize();
     }
+
     var bounds = new google.maps.LatLngBounds();
     // Extend the boundaries of the map for each marker and display the marker
     for (var i = 0; i < markers.length; i++) {
@@ -61,13 +83,25 @@ function initMap() {
     }
     map.fitBounds(bounds);
 
+    // Function of click list to show zoom and change center
     clickListToZoomAndCenter(markers, largeInfowindow);
 }
+
+// Resize function when window change
+$(window).resize(function() {
+    var windowWidth = $(window).width();
+    if ($(window).width() < 850) {
+        $("#scroller").hide();
+    }else if ($(window).width() >= 850) {
+        $("#scroller").show();
+    }
+});
 
 // The function of click the list and then make zoom and change center of the map
 function clickListToZoomAndCenter(marker, infowindow) {
     infowindow.marker = marker;
 
+    //the information box show when click the ListView
     for(i=0; i<marker.length; i++) {
         var searchList = $('#list' + i);
         searchList.click((function(marker, i) {
@@ -153,7 +187,7 @@ function makeMarkerIcon(markerColor) {
     return markerImage;
 }
 
-
+//Knockout.js view model
 function MyViewModel() {
     var self = this;
     this.query = ko.observable('');
