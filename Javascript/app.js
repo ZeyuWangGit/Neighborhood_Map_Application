@@ -7,6 +7,7 @@ var map;
 var markers = [];
 var content;
 
+
 function initMap() {
     // Constructor creates a new map - only center and zoom are required.
     map = new google.maps.Map(document.getElementById('map'), {
@@ -43,7 +44,8 @@ function initMap() {
             id: i,
             streetAddress: ViewModel.markersSrc[i].streetAddress,
             cityAddress: ViewModel.markersSrc[i].cityAddress,
-            icon: defaultIcon
+            icon: defaultIcon,
+            mapVisible: true
         });
         // Push the marker to our array of markers.
         markers.push(marker);
@@ -51,7 +53,9 @@ function initMap() {
         //marker's response when click, mouseover and mouseout
         marker.addListener('click', function() {
             populateInfoWindow(this, largeInfowindow);
+            toggleBounce(this);
         });
+
         marker.addListener('mouseover', function() {
             this.setIcon(highlightedIcon);
         });
@@ -63,6 +67,8 @@ function initMap() {
         $( "#btn-class" ).click(function() {
             map.setZoom(14);
             map.setCenter(new google.maps.LatLng(-35.282267, 149.128741));
+            reset();
+            setAllMap();
         });
         $("#hide").click(function(){
             $("#scroller").hide();
@@ -74,17 +80,48 @@ function initMap() {
         //resize function when window resize and hide ListView
         $(window).resize();
     }
+    $('.google-map__trigger-item').each(function(i){
+        $(this).on('click', function(){
+            google.maps.event.trigger(markers[i], 'click');
+        });
+        $(this).on('mouseover', function(){
+            google.maps.event.trigger(markers[i], 'mouseover');
+        });
+        $(this).on('mouseout', function(){
+            google.maps.event.trigger(markers[i], 'mouseout');
+        });
+    });
 
-    var bounds = new google.maps.LatLngBounds();
+    // var bounds = new google.maps.LatLngBounds();
     // Extend the boundaries of the map for each marker and display the marker
+    // for (var i = 0; i < markers.length; i++) {
+    //     markers[i].setMap(map);
+    //     bounds.extend(markers[i].position);
+    // }
+    // map.fitBounds(bounds);
+    setAllMap();
+
+}
+
+// set Markers in the map
+function setAllMap() {
+    var bounds = new google.maps.LatLngBounds();
     for (var i = 0; i < markers.length; i++) {
-        markers[i].setMap(map);
+        if(markers[i].mapVisible === true) {
+            markers[i].setMap(map);
+        } else {
+            markers[i].setMap(null);
+        }
         bounds.extend(markers[i].position);
     }
     map.fitBounds(bounds);
+}
 
-    // Function of click list to show zoom and change center
-    clickListToZoomAndCenter(markers, largeInfowindow);
+// Reset markers after filter
+function reset() {
+    for (var i = 0; i < markers.length; i++) {
+        markers[i].mapVisible = true;
+    }
 }
 
 // Resize function when window change
@@ -95,47 +132,23 @@ $(window).resize(function() {
     }else if ($(window).width() >= 850) {
         $("#scroller").show();
     }
+
 });
 
-// The function of click the list and then make zoom and change center of the map
-function clickListToZoomAndCenter(marker, infowindow) {
-    infowindow.marker = marker;
-
-    //the information box show when click the ListView
-    for(i=0; i<marker.length; i++) {
-        var searchList = $('#list' + i);
-        searchList.click((function(marker, i) {
-            return function() {
-                var content='';
-                var wikiURL = 'http://en.wikipedia.org/w/api.php?action=opensearch&search=' + marker.title + '&format=json&callback=wikiCallback';
-                var wikiRequestTimeOut = setTimeout(function () {
-                    content = "Failed to get wikipedia resources";
-                },1000);
-                $.ajax({
-                    url:wikiURL,
-                    dataType:'jsonp',
-                    success: function (response) {
-                        var articleList = response[1];
-                        for (var i = 0; i<articleList.length; i++) {
-                            articleStr = articleList[i];
-                            var url = 'http://en.wikipedia.org/wiki/' + articleStr ;
-                            content += '<li><a href="'+url+'">' + articleStr + '</a></li>';
-                        };
-                        clearTimeout(wikiRequestTimeOut);
-                    }
-                })
-                infowindow.setContent('<div>' + '<strong>' +
-                    marker.title + '</strong><br><p>' +
-                    marker.streetAddress + '<br>' +
-                    marker.cityAddress + '<br></p>' + '<hr><p>Wiki Information:</p>' + content + '</div>');
-
-                infowindow.open(map,marker);
-                map.setZoom(16);
-                map.setCenter(marker.getPosition());
-                // location[i].picBoolTest = true;
-            };
-        })(marker[i],i));
-
+function OpenInfowindowForMarker(index) {
+    google.maps.event.trigger(markers[index], 'click');
+}
+function highlightedIconForMarker(index) {
+    google.maps.event.trigger(markers[index], 'mouseover');
+}
+function defaultIconForMarker(index) {
+    google.maps.event.trigger(markers[index], 'mouseout');
+}
+function toggleBounce(marker) {
+    if (marker.getAnimation() !== null) {
+        marker.setAnimation(null);
+    } else {
+        marker.setAnimation(google.maps.Animation.BOUNCE);
     }
 }
 
@@ -149,7 +162,7 @@ function populateInfoWindow(marker, infowindow) {
         var content='';
         var wikiURL = 'http://en.wikipedia.org/w/api.php?action=opensearch&search=' + marker.title + '&format=json&callback=wikiCallback';
         var wikiRequestTimeOut = setTimeout(function () {
-            content = "Failed to get wikipedia resources";
+            infowindow.setContent("Failed to get wikipedia resources");
         },1000);
         $.ajax({
             url:wikiURL,
@@ -173,6 +186,8 @@ function populateInfoWindow(marker, infowindow) {
         infowindow.addListener('closeclick', function() {
             infowindow.marker = null;
         });
+        map.setZoom(16);
+        map.setCenter(marker.position);
     }
 }
 
@@ -195,73 +210,81 @@ function MyViewModel() {
         title: 'National Museum of Australia',
         lat: ' -35.293189',
         lng: '149.121190',
-        id: 'list0',
+        id: '0',
         streetAddress: 'Lawson Cres',
         cityAddress: 'Acton ACT 2601, Australia',
         listVisible: ko.observable(true),
         mapVisible: true,
-        location: {lat: -35.293189, lng: 149.121190}
+        location: {lat: -35.293189, lng: 149.121190},
+        className: 'google-map__trigger-item'
     },{
         title: 'National Library of Australia',
         lat: ' -35.296547',
         lng: '149.129837',
-        id: 'list1',
+        id: '1',
         streetAddress: 'Parkes Pl W',
         cityAddress: 'Canberra ACT 2600, Australia',
         listVisible: ko.observable(true),
         mapVisible: true,
-        location: {lat: -35.296547, lng: 149.129837}
+        location: {lat: -35.296547, lng: 149.129837},
+        className: 'google-map__trigger-item'
     },{
         title: 'Australian War Memorial',
         lat: ' -35.281106',
         lng: '149.148334',
-        id: 'list2',
+        id: '2',
         streetAddress: 'Treloar Cres',
         cityAddress: 'Campbell ACT 2612, Australia',
         listVisible: ko.observable(true),
         mapVisible: true,
-        location: {lat: -35.281106, lng: 149.148334}
+        location: {lat: -35.281106, lng: 149.148334},
+        className: 'google-map__trigger-item'
     },{
         title: 'Parliament House',
         lat: ' -35.307871',
         lng: '149.124189',
-        id: 'list3',
+        id: '3',
         streetAddress: 'Parliament Dr',
         cityAddress: 'Canberra ACT 2600, Australia',
         listVisible: ko.observable(true),
         mapVisible: true,
-        location: {lat: -35.307871, lng: 149.124189}
+        location: {lat: -35.307871, lng: 149.124189},
+        className: 'google-map__trigger-item'
     },{
         title: 'The Australian National University',
         lat: ' -35.277997',
         lng: '149.118984',
-        id: 'list4',
+        id: '4',
         streetAddress: 'Acton',
         cityAddress: 'Acton ACT 2601, Australia',
         listVisible: ko.observable(true),
         mapVisible: true,
-        location: {lat: -35.277997, lng: 149.118984}
+        location: {lat: -35.277997, lng: 149.118984},
+        className: 'google-map__trigger-item'
     },{
         title: 'Telstra Tower',
         lat: ' -35.275891',
         lng: '149.098601',
-        id: 'list5',
+        id: '5',
         streetAddress: '100 Black Mountain Dr',
         cityAddress: 'Acton ACT 2601, Australia',
         listVisible: ko.observable(true),
         mapVisible: true,
-        location: {lat: -35.275891, lng: 149.098601}
+        location: {lat: -35.275891, lng: 149.098601},
+        className: 'google-map__trigger-item'
     }];
     // computer observable array to make filter function showing in the ListView
     this.markers = ko.computed(function() {
         var search = self.query().toLowerCase();
-        return ko.utils.arrayFilter(self.markersSrc, function(marker) {
-            if (marker.title.toLowerCase().indexOf(search) >= 0) {
-                marker.mapVisible = true;
-                return marker.listVisible(true);
+        return ko.utils.arrayFilter(self.markersSrc, function(marker1) {
+            if (marker1.title.toLowerCase().indexOf(search) >= 0) {
+                marker1.mapVisible = true;
+                return marker1.listVisible(true);
             } else {
-                marker.mapVisible = false;
-                return marker.listVisible(false);
+                marker1.mapVisible = false;
+                markers[marker1.id].mapVisible = false;
+                setAllMap();
+                return marker1.listVisible(false);
             }
         });
     },MyViewModel);
@@ -269,5 +292,9 @@ function MyViewModel() {
 var ViewModel = new MyViewModel();
 
 ko.applyBindings(ViewModel);
+
+function mapError() {
+    console.log("Google Map Connection Error! Check your internet or ask Google for help!")
+}
 
 
