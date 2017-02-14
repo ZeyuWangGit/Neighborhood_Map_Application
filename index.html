@@ -15,7 +15,7 @@
                 <div id="hide">HideList</div>
                 <input id="input" placeholder="Search here..." type="text" data-bind="textInput: query, valueUpdate: 'keydown'" autocomplete="off">
                 <div id="scroller">
-                    <ul data-bind="template: { name: 'new-template', foreach: markers }"></ul>
+                    <ul data-bind="template: { name: 'new-template', foreach: markers1 }"></ul>
                     <script type="text/html" id="new-template">
                         <h3 data-bind="text: name"></h3>
                         <div data-bind="visible: listVisible">
@@ -38,6 +38,8 @@
     </div>
 
 
+
+
     <script src="Javascript/lib/knockout-3.4.1.js"></script>
     <script src="Javascript/lib/jquery.min.js"></script>
     <script src="Javascript/lib/bootstrap.min.js"></script>
@@ -46,6 +48,8 @@
     <script async defer onerror="mapError()"
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCN1T3lBNWs_oOtWME346hjdnds7XDrolc&libraries=geometry&v=3&callback=initMap">
     </script>
+
+
 
 
 </body>

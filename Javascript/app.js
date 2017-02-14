@@ -37,7 +37,7 @@ function initMap() {
         var position = new google.maps.LatLng(ViewModel.markersSrc[i].lat, ViewModel.markersSrc[i].lng);
         var title = ViewModel.markersSrc[i].title;
         // Create a marker per location, and put into markers array.
-        var marker = new google.maps.Marker({
+        var markerA = new google.maps.Marker({
             position: position,
             title: title,
             animation: google.maps.Animation.DROP,
@@ -48,18 +48,18 @@ function initMap() {
             mapVisible: true
         });
         // Push the marker to our array of markers.
-        markers.push(marker);
+        markers.push(markerA);
 
         //marker's response when click, mouseover and mouseout
-        marker.addListener('click', function() {
+        markerA.addListener('click', function() {
             populateInfoWindow(this, largeInfowindow);
-            toggleBounce(this);
+            toggleDrop(this);
         });
 
-        marker.addListener('mouseover', function() {
+        markerA.addListener('mouseover', function() {
             this.setIcon(highlightedIcon);
         });
-        marker.addListener('mouseout', function() {
+        markerA.addListener('mouseout', function() {
             this.setIcon(defaultIcon);
         });
 
@@ -92,26 +92,28 @@ function initMap() {
         });
     });
 
-    // var bounds = new google.maps.LatLngBounds();
-    // Extend the boundaries of the map for each marker and display the marker
-    // for (var i = 0; i < markers.length; i++) {
-    //     markers[i].setMap(map);
-    //     bounds.extend(markers[i].position);
-    // }
-    // map.fitBounds(bounds);
     setAllMap();
+    changeBound();
+
 
 }
 
 // set Markers in the map
 function setAllMap() {
-    var bounds = new google.maps.LatLngBounds();
+    // var bounds = new google.maps.LatLngBounds();
     for (var i = 0; i < markers.length; i++) {
-        if(markers[i].mapVisible === true) {
+        if(ViewModel.markersSrc[i].mapVisible === true) {
             markers[i].setMap(map);
-        } else {
+         }
+         else {
             markers[i].setMap(null);
         }
+    }
+}
+
+function changeBound() {
+    var bounds = new google.maps.LatLngBounds();
+    for (var i = 0; i < markers.length; i++) {
         bounds.extend(markers[i].position);
     }
     map.fitBounds(bounds);
@@ -144,23 +146,19 @@ function highlightedIconForMarker(index) {
 function defaultIconForMarker(index) {
     google.maps.event.trigger(markers[index], 'mouseout');
 }
-function toggleBounce(marker) {
-    if (marker.getAnimation() !== null) {
-        marker.setAnimation(null);
-    } else {
-        marker.setAnimation(google.maps.Animation.BOUNCE);
-    }
+function toggleDrop(markerB) {
+    markerB.setAnimation(google.maps.Animation.DROP);
 }
 
 // This function populates the infowindow when the marker is clicked. We'll only allow
 // one infowindow which will open at the marker that is clicked, and populate based
 // on that markers position.
-function populateInfoWindow(marker, infowindow) {
+function populateInfoWindow(markerC, infowindow) {
     // Check to make sure the infowindow is not already opened on this marker.
-    if (infowindow.marker != marker) {
-        infowindow.marker = marker;
+    if (infowindow.marker != markerC) {
+        infowindow.marker = markerC;
         var content='';
-        var wikiURL = 'http://en.wikipedia.org/w/api.php?action=opensearch&search=' + marker.title + '&format=json&callback=wikiCallback';
+        var wikiURL = 'http://en.wikipedia.org/w/api.php?action=opensearch&search=' + markerC.title + '&format=json&callback=wikiCallback';
         var wikiRequestTimeOut = setTimeout(function () {
             infowindow.setContent("Failed to get wikipedia resources");
         },1000);
@@ -175,19 +173,19 @@ function populateInfoWindow(marker, infowindow) {
                     content += '<li><a href="'+url+'">' + articleStr + '</a></li>';
                 };
                 infowindow.setContent('<div>' + '<strong>' +
-                    marker.title + '</strong><br><p>' +
-                    marker.streetAddress + '<br>' +
-                    marker.cityAddress + '<br></p>' + '<hr><p>Wiki Information:</p>' + content + '</div>');
+                    markerC.title + '</strong><br><p>' +
+                    markerC.streetAddress + '<br>' +
+                    markerC.cityAddress + '<br></p>' + '<hr><p>Wiki Information:</p>' + content + '</div>');
                 clearTimeout(wikiRequestTimeOut);
             }
         })
-        infowindow.open(map, marker);
+        infowindow.open(map, markerC);
         // Make sure the marker property is cleared if the infowindow is closed.
         infowindow.addListener('closeclick', function() {
             infowindow.marker = null;
         });
         map.setZoom(16);
-        map.setCenter(marker.position);
+        map.setCenter(markerC.position);
     }
 }
 
@@ -274,17 +272,22 @@ function MyViewModel() {
         className: 'google-map__trigger-item'
     }];
     // computer observable array to make filter function showing in the ListView
-    this.markers = ko.computed(function() {
+    this.markers1 = ko.computed(function() {
         var search = self.query().toLowerCase();
         return ko.utils.arrayFilter(self.markersSrc, function(marker1) {
-            if (marker1.title.toLowerCase().indexOf(search) >= 0) {
+            if (marker1.title.toLowerCase().indexOf(search) !== -1) {
                 marker1.mapVisible = true;
-                return marker1.listVisible(true);
-            } else {
-                marker1.mapVisible = false;
-                markers[marker1.id].mapVisible = false;
                 setAllMap();
-                return marker1.listVisible(false);
+                    console.log(markers);
+                if(search === ""){
+                    marker1.mapVisible = true;
+                }
+                    return marker1.listVisible(true);
+            } else {
+                    marker1.mapVisible = false;
+                    markers[marker1.id].mapVisible = false;
+                    setAllMap();
+                    return marker1.listVisible(false);
             }
         });
     },MyViewModel);
@@ -294,7 +297,7 @@ var ViewModel = new MyViewModel();
 ko.applyBindings(ViewModel);
 
 function mapError() {
-    console.log("Google Map Connection Error! Check your internet or ask Google for help!")
+    alert("Google Map Connection Error! Check your internet or ask Google for help!")
 }
 
 
